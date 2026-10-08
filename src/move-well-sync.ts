@@ -7,7 +7,6 @@ type CloudRow = Snapshot & { user_id: string; updated_at?: string }
 const status = () => document.getElementById('cloud-status')
 let activeUserId: string | null = null
 let saveTimer = 0
-let latestSnapshot: Snapshot | null = null
 
 function setStatus(message: string, link = false) {
   const node = status()
@@ -40,10 +39,8 @@ async function loadUser(userId: string) {
   if (data) {
     const snapshot: Snapshot = { state: { place: data.place, level: data.level, minutes: data.minutes, days: data.days, habits: data.habits ?? [] }, checks: data.checks ?? {}, date: data.check_date }
     announceRestore(snapshot)
-    latestSnapshot = snapshot
     setStatus('로그인한 계정에 안전하게 저장돼요')
   } else {
-    latestSnapshot = null
     setStatus('이 계정에 운동 계획과 체크 기록을 저장해요')
   }
 }
@@ -51,7 +48,6 @@ async function loadUser(userId: string) {
 window.addEventListener('move-well-save', (event) => {
   const detail = (event as CustomEvent<Snapshot>).detail
   if (!detail) return
-  latestSnapshot = detail
   if (!activeUserId) return
   window.clearTimeout(saveTimer)
   saveTimer = window.setTimeout(async () => {
